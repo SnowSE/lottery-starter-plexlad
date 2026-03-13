@@ -2,6 +2,20 @@
 
 using System.Collections.Concurrent;
 
+enum PrizeLevel
+{
+    Level0,
+    Level1,
+    Level2,
+    Level3,
+    Level4,
+    Level5,
+    Level6,
+    Level7,
+    Level8,
+    Level9,
+}
+
 class Ticket
 {
     public int[] RegTickets { get; set; }
@@ -24,6 +38,22 @@ class Ticket
             RegTickets[i] = Random.Shared.Next(1, 70);
         }
         PowerBall = Random.Shared.Next(1, 27);
+    }
+
+    public PrizeLevel GetPrizeLevel(Ticket winningTicket)
+    {
+      int matches = winningTicket.RegTickets.Intersect(RegTickets).Count();
+      bool powerBallMatch = PowerBall == winningTicket.PowerBall;
+      if (matches == 5 && powerBallMatch) return PrizeLevel.Level9;
+      if (matches == 5) return PrizeLevel.Level8;
+      if (matches == 4 && powerBallMatch) return PrizeLevel.Level7;
+      if (matches == 4) return PrizeLevel.Level6;
+      if (matches == 3 && powerBallMatch) return PrizeLevel.Level5;
+      if (matches == 3) return PrizeLevel.Level4;
+      if (matches == 2 && powerBallMatch) return PrizeLevel.Level3;
+      if (matches == 1 && powerBallMatch) return PrizeLevel.Level2;
+      if (powerBallMatch) return PrizeLevel.Level1;
+      return PrizeLevel.Level0;
     }
 }
 class LotteryPeriod
