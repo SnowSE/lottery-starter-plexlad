@@ -69,6 +69,19 @@ class LotteryPeriod
     {
         WinningTicket = new Ticket(numbers, powerBall);
     }
+
+    public Dictionary<PrizeLevel, int> GatherStatistics()
+    {
+      Dictionary<PrizeLevel, int> stats = new Dictionary<PrizeLevel, int>();
+      foreach (Ticket ticket in SoldTickets)
+      {
+          PrizeLevel level = ticket.GetPrizeLevel(WinningTicket);
+          if (!stats.ContainsKey(level))
+              stats[level] = 0;
+          stats[level]++;
+      }
+      return stats;
+    }
 }
 class LotteryVendor
 {
@@ -86,7 +99,6 @@ class LotteryVendor
 }
 class Program
 {
-
     static void Main(string[] args)
     {
         const int VENDOR_AMOUNT = 3;
@@ -102,6 +114,9 @@ class Program
         Parallel.ForEach(vendors, v => v.SellTickets(period, ALOTTED_TICKETS));
 
         Console.WriteLine($"{VENDOR_AMOUNT} vendors sold {period.SoldTickets.Count:N0} tickets!");
+        var stats = period.GatherStatistics();
+        foreach(var kv in stats)
+          Console.WriteLine($"Prize Level {kv.Key}: {kv.Value:N0} winners");
 
         //TODO: 1a) make 3 vendors sell 10M tickets each
         // 1b) 3 vendors sell tickets in parallel
