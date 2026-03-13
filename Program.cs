@@ -1,5 +1,7 @@
 ﻿namespace inclassLottery;
 
+using System.Collections.Concurrent;
+
 class Ticket
 {
     public int[] RegTickets { get; set; }
@@ -60,17 +62,16 @@ class Program
         const int VENDOR_AMOUNT = 3;
         const int ALOTTED_TICKETS = 10_000_000;
 
-        Console.WriteLine($"Hello, Lets sell {VENDOR_AMOUNT*ALOTTED_TICKETS} tickets!");
+        Console.WriteLine($"Hello, Lets sell {(VENDOR_AMOUNT*ALOTTED_TICKETS):N0} tickets!");
         LotteryPeriod period = new LotteryPeriod();
         LotteryVendor[] vendors = new LotteryVendor[VENDOR_AMOUNT];
 
         for (int i = 0; i < vendors.Length; i++)
             vendors[i] = new LotteryVendor();
 
-        foreach (var v in vendors)
-            v.SellTickets(period, ALOTTED_TICKETS);
+        Parallel.ForEach(vendors, v => v.SellTickets(period, ALOTTED_TICKETS));
 
-        Console.WriteLine($"{VENDOR_AMOUNT} vendors sold {period.SoldTickets.Count} tickets!");
+        Console.WriteLine($"{VENDOR_AMOUNT} vendors sold {period.SoldTickets.Count:N0} tickets!");
 
         //TODO: 1a) make 3 vendors sell 10M tickets each
         // 1b) 3 vendors sell tickets in parallel
