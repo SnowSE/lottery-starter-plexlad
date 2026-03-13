@@ -70,16 +70,14 @@ class LotteryPeriod
         WinningTicket = new Ticket(numbers, powerBall);
     }
 
-    public Dictionary<PrizeLevel, int> GatherStatistics()
+    public ConcurrentDictionary<PrizeLevel, int> GatherStatistics()
     {
-      Dictionary<PrizeLevel, int> stats = new Dictionary<PrizeLevel, int>();
-      foreach (Ticket ticket in SoldTickets)
+      ConcurrentDictionary<PrizeLevel, int> stats = new ConcurrentDictionary<PrizeLevel, int>();
+      Parallel.ForEach(SoldTickets, ticket =>
       {
           PrizeLevel level = ticket.GetPrizeLevel(WinningTicket);
-          if (!stats.ContainsKey(level))
-              stats[level] = 0;
-          stats[level]++;
-      }
+          stats.AddOrUpdate(level, 1, (key, oldValue) => oldValue + 1);
+      });
       return stats;
     }
 }
