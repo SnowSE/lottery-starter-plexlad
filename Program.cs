@@ -70,15 +70,16 @@ class LotteryPeriod
         WinningTicket = new Ticket(numbers, powerBall);
     }
 
-    public ConcurrentDictionary<PrizeLevel, int> GatherStatistics()
+    public Dictionary<PrizeLevel, int> GatherStatistics()
     {
-      ConcurrentDictionary<PrizeLevel, int> stats = new ConcurrentDictionary<PrizeLevel, int>();
+      var levels = Enum.GetValues<PrizeLevel>();
+      int[] stats = new int[levels.Length];
       Parallel.ForEach(SoldTickets, ticket =>
       {
           PrizeLevel level = ticket.GetPrizeLevel(WinningTicket);
-          stats.AddOrUpdate(level, 1, (key, oldValue) => oldValue + 1);
+          Interlocked.Increment(ref stats[(int)level]);
       });
-      return stats;
+      return levels.ToDictionary(l => l, l => stats[(int)l]);
     }
 }
 class LotteryVendor
