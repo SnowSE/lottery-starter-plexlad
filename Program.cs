@@ -27,12 +27,11 @@ class Ticket
 class LotteryPeriod
 {
     public Ticket WinningTicket { get; set; }
-    public List<Ticket> SoldTickets { get; set; } = new List<Ticket>();
+    public ConcurrentBag<Ticket> SoldTickets { get; set; } = new ConcurrentBag<Ticket>();
     public LotteryPeriod()
     {
         int[] numbers = new int[5] { 1, 2, 3, 4, 5 };
         SetWinningTicket(numbers, 6);
-
     }
     public void SetWinningTicket(int[] numbers, int powerBall)
     {
@@ -58,11 +57,20 @@ class Program
 
     static void Main(string[] args)
     {
-        Console.WriteLine("Hello, Lets sell 1Million Tickets!");
+        const int VENDOR_AMOUNT = 3;
+        const int ALOTTED_TICKETS = 10_000_000;
+
+        Console.WriteLine($"Hello, Lets sell {VENDOR_AMOUNT*ALOTTED_TICKETS} tickets!");
         LotteryPeriod period = new LotteryPeriod();
-        LotteryVendor vendor = new LotteryVendor();
-        vendor.SellTickets(period, 1_000_000);
-        Console.WriteLine("SOLD 1Million Tickets!");
+        LotteryVendor[] vendors = new LotteryVendor[VENDOR_AMOUNT];
+
+        for (int i = 0; i < vendors.Length; i++)
+            vendors[i] = new LotteryVendor();
+
+        foreach (var v in vendors)
+            v.SellTickets(period, ALOTTED_TICKETS);
+
+        Console.WriteLine($"{VENDOR_AMOUNT} vendors sold {period.SoldTickets.Count} tickets!");
 
         //TODO: 1a) make 3 vendors sell 10M tickets each
         // 1b) 3 vendors sell tickets in parallel
